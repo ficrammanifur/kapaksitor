@@ -10,6 +10,7 @@
 <img src="https://img.shields.io/badge/power-220V_AC-FF0000?style=for-the-badge" />
 <img src="https://img.shields.io/badge/firmware-Arduino_Matter-00979D?style=for-the-badge&logo=arduino&logoColor=white" />
 </p>
+
 ## 📋 Daftar Isi
 - [Mengapa Nexora V1?](#-mengapa-nexora-v1)
 - [Fitur Utama](#-fitur-utama)
@@ -18,14 +19,18 @@
 - [Skema Wiring](#-skema-wiring)
 - [Panduan Pairing](#-panduan-pairing)
 - [Troubleshooting](#-troubleshooting)
+
 ## 🚀 Mengapa Nexora V1?
-Nexora V1 hadir untuk menjembatani kesenjangan antara perangkat IoT DIY yang berantakan dengan ekosistem Smart Home profesional. Menggunakan protokol **Matter**, perangkat ini tidak memerlukan akun pihak ketiga dan bekerja secara *native* di Apple Home, Google Home, dan Alexa.
+Nexora V1 hadir untuk menjembatani kesenjangan antara perangkat IoT DIY yang berantakan dengan ekosistem Smart Home profesional. Menggunakan protokol 
+
+**Matter**, perangkat ini tidak memerlukan akun pihak ketiga dan bekerja secara *native* di Apple Home, Google Home, dan Alexa.
 | Keunggulan | Deskripsi |
 |---|---|
 | **AC-DC Integrated** | Sudah termasuk modul Hi-Link, tidak butuh adaptor tambahan. |
 | **Native Ecosystem** | Terdeteksi langsung sebagai "Light" di ekosistem besar. |
 | **State Memory** | Menggunakan Preferences.h, status relay tetap terjaga saat mati lampu. |
 | **OTA Ready** | Update fitur jarak jauh tanpa bongkar casing. |
+
 ## 🧩 Komponen & Hardware
 | Komponen | Fungsi |
 |---|---|
@@ -35,6 +40,7 @@ Nexora V1 hadir untuk menjembatani kesenjangan antara perangkat IoT DIY yang ber
 | **Terminal Block 2-Pin (2x)** | Konektor input (PLN) dan output (Beban). |
 | **Tactile Switch** | Tombol manual + Factory Reset (GPIO 4). |
 | **LED Built-in** | Indikator status WiFi & Matter (GPIO 2). |
+
 ## 🏗️ Arsitektur Sistem
 ```mermaid
 flowchart LR
@@ -44,8 +50,8 @@ flowchart LR
     ESP32 -->|Signal GPIO 23| RELAY
     RELAY -->|Switched L| LOAD[Lampu / Beban]
     ESP32 <-->|Matter Protocol| APP[HomeKit / Google Home]
-
 ```
+
 ## 🔌 Skema Wiring
 
 > **⚠️ PERINGATAN:** Matikan MCB utama sebelum menyambungkan kabel. Nexora V1 bekerja dengan tegangan tinggi 220V!
@@ -59,6 +65,7 @@ flowchart LR
 2. **WiFi Setup:** Connect ke SSID `Mochi-Smart-Switch` (WiFiManager) dan masukkan kredensial WiFi rumah
 3. **Scan Matter:** Buka aplikasi Google Home/Apple Home → *Add Device* → *Matter Device*
 4. **QR Code:** Scan stiker QR yang tertempel di unit (Default PIN: `20202021`)
+
 ## 🐞 Troubleshooting
 
 ### Alat Tidak Merespon (Lampu Mati)
@@ -90,6 +97,7 @@ flowchart LR
 **Solusi:**
 - Dekatkan alat dengan router
 - Atau pasang antena eksternal jika menggunakan casing 3D print yang tebal
+
 ## 📁 Struktur Proyek
 ```
 kapaksitor-nexora-v1/
@@ -102,8 +110,8 @@ kapaksitor-nexora-v1/
 └── docs/
     ├── manual_book.pdf     # Panduan cetak untuk user
     └── pairing_qr.png      # Template QR Code Matter
-
 ```
+
 <div align="center">
 
 **© 2026 Kapaksitor Labs**
