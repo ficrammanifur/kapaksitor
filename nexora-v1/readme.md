@@ -4,7 +4,7 @@
 </h1>
 
 <p align="center">
-  <img src="assets/nexora-banner.png" alt="Kapaksitor Nexora V1" width="700"/>
+  <img src="assets/nexora-banner.png.PNG" alt="Kapaksitor Nexora V1" width="700"/>
 </p>
 
 <p align="center">
