@@ -5,30 +5,37 @@
 #include <ArduinoOTA.h>
 #include <Preferences.h>
 
-#define LED_PIN       2     // Builtin LED indikator
-#define RELAY_PIN     23    // Relay dipindah ke GPIO 23
-#define SWITCH_PIN    4     // Tombol fisik
+#include "config.h"
 
+// =======================
+// OBJECTS
+// =======================
 MatterDevice light_device;
 Preferences prefs;
 
+// =======================
+// VARIABLES
+// =======================
 bool relayState = false;
 
-// Anti Bounce Variables
 bool lastButtonState = HIGH;
 bool currentButtonState = HIGH;
 unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 50;
 
-// WiFi Reconnect Timer
 unsigned long lastWifiCheck = 0;
 
+// =======================
+// SAVE STATE
+// =======================
 void saveState(bool state) {
   prefs.begin("relay", false);
   prefs.putBool("state", state);
   prefs.end();
 }
 
+// =======================
+// LOAD STATE
+// =======================
 bool loadState() {
   prefs.begin("relay", true);
   bool state = prefs.getBool("state", false);
@@ -36,6 +43,9 @@ bool loadState() {
   return state;
 }
 
+// =======================
+// SET RELAY
+// =======================
 void setRelay(bool state) {
   relayState = state;
 
@@ -47,32 +57,22 @@ void setRelay(bool state) {
   Serial.println(state ? "Relay ON" : "Relay OFF");
 }
 
+// =======================
+// OTA
+// =======================
 void setupOTA() {
-  ArduinoOTA.setHostname("Mochi-SmartSwitch");
-
-  ArduinoOTA.onStart([]() {
-    Serial.println("OTA Start");
-  });
-
-  ArduinoOTA.onEnd([]() {
-    Serial.println("\nOTA End");
-  });
-
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("OTA Progress: %u%%\r", (progress * 100) / total);
-  });
-
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("OTA Error[%u]\n", error);
-  });
+  ArduinoOTA.setHostname(OTA_HOSTNAME);
 
   ArduinoOTA.begin();
 }
 
+// =======================
+// WIFI
+// =======================
 void connectWiFi() {
   WiFiManager wm;
 
-  bool res = wm.autoConnect("Mochi-Smart-Switch");
+  bool res = wm.autoConnect(WIFI_AP_NAME);
 
   if (!res) {
     Serial.println("WiFi gagal, restart...");
@@ -82,6 +82,9 @@ void connectWiFi() {
   Serial.println("WiFi Connected!");
 }
 
+// =======================
+// SETUP
+// =======================
 void setup() {
   Serial.begin(115200);
 
@@ -93,50 +96,48 @@ void setup() {
   setRelay(relayState);
 
   connectWiFi();
-
   setupOTA();
 
-  // Start Matter
+  // Matter Start
   Matter.begin();
+  light_device.begin(MatterDevice::ON_OFF_LIGHT, DEVICE_NAME);
 
-  light_device.begin(MatterDevice::ON_OFF_LIGHT, "Lampu Mochi");
+  Serial.println("===== NEXORA READY =====");
+  Serial.print("Device: "); Serial.println(DEVICE_NAME);
+  Serial.print("Firmware: "); Serial.println(FIRMWARE_VERSION);
 
-  // QR / Pairing Info
-  Serial.println("===== MATTER PAIRING READY =====");
-  Serial.println("Scan QR pairing dari serial monitor/library Matter kamu");
-
-  // Callback dari App/Home Assistant/Google Home
+  // Callback dari Matter
   light_device.onChange([](bool state) {
     setRelay(state);
   });
 }
 
+// =======================
+// LOOP
+// =======================
 void loop() {
 
-  // OTA Handler
   ArduinoOTA.handle();
-
-  // Matter Loop (kalau library butuh)
   Matter.loop();
 
-  // WiFi Auto Reconnect
-  if (millis() - lastWifiCheck > 10000) {
+  // WiFi Reconnect
+  if (millis() - lastWifiCheck > WIFI_CHECK_INTERVAL) {
     lastWifiCheck = millis();
 
     if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("WiFi Disconnect! Reconnecting...");
+      Serial.println("WiFi reconnect...");
       WiFi.reconnect();
     }
   }
 
-  // Anti Bounce Button
+  // BUTTON
   bool reading = digitalRead(SWITCH_PIN);
 
   if (reading != lastButtonState) {
     lastDebounceTime = millis();
   }
 
-  if ((millis() - lastDebounceTime) > debounceDelay) {
+  if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {
 
     if (reading != currentButtonState) {
       currentButtonState = reading;
@@ -147,7 +148,7 @@ void loop() {
 
         setRelay(relayState);
 
-        // Sync ke Matter App
+        // Sync ke Matter
         light_device.setState(relayState);
       }
     }
